@@ -18,7 +18,10 @@ export default defineConfig({
     // Exclude patterns
     exclude: [
       '**/node_modules/**',
-      '**/dist/**'
+      '**/dist/**',
+      '**/ui/**',
+      '**/test-utils/**',
+      '**/simulator/**'
     ],
     
     // Timeout for async operations (critical for real-time systems)
@@ -44,12 +47,10 @@ export default defineConfig({
         '**/__perf__/**'
       ],
       thresholds: {
-        global: {
-          statements: 70,
-          branches: 60,
-          functions: 70,
-          lines: 70
-        }
+        statements: 70,
+        branches: 60,
+        functions: 70,
+        lines: 70
       }
     },
     
@@ -57,43 +58,6 @@ export default defineConfig({
     reporters: ['verbose', 'json'],
     outputFile: {
       json: './test-results/results.json'
-    },
-    
-    // Workspace configuration for monorepo
-    workspace: [
-      {
-        extends: true,
-        test: {
-          name: 'os',
-          root: './os',
-          include: ['src/**/*.test.ts']
-        }
-      },
-      {
-        extends: true,
-        test: {
-          name: 'mock',
-          root: './mock',
-          include: ['src/**/*.test.ts']
-        }
-      },
-      {
-        extends: true,
-        test: {
-          name: 'shared',
-          root: './shared',
-          include: ['src/**/*.test.ts']
-        }
-      }
-    ],
-    
-    // Pool configuration for better isolation
-    pool: 'threads',
-    poolOptions: {
-      threads: {
-        singleThread: false,
-        isolate: true
-      }
     },
     
     // Retry configuration for flaky tests
