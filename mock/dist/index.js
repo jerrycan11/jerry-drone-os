@@ -20,3 +20,5 @@ __exportStar(require("./components/MockBattery"), exports);
 __exportStar(require("./sensors/MockIMU"), exports);
 __exportStar(require("./sensors/MockGPS"), exports);
 __exportStar(require("./sensors/MockBarometer"), exports);
+__exportStar(require("./sensors/MockLidar"), exports);
+__exportStar(require("./sensors/MockCamera"), exports);

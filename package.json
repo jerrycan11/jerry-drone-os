@@ -6,11 +6,19 @@
     "os",
     "mock",
     "shared",
-    "ui"
+    "ui",
+    "test-utils"
   ],
   "scripts": {
     "build": "tsc -b",
-    "test": "npm run test --workspaces",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:unit": "vitest run --exclude='**/__integration__/**' --exclude='**/__e2e__/**' --exclude='**/__perf__/**'",
+    "test:integration": "vitest run **/src/__integration__/**/*.test.ts",
+    "test:e2e": "vitest run **/src/__e2e__/**/*.test.ts",
+    "test:perf": "vitest run **/src/__perf__/**/*.test.ts",
+    "test:health": "vitest run && node scripts/health-report.js",
     "start:mock": "npm run start --workspace=mock",
     "start:os": "npm run start --workspace=os"
   },
@@ -18,6 +26,7 @@
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^8.50.1",
     "@typescript-eslint/parser": "^8.50.1",
+    "@vitest/coverage-v8": "^4.0.16",
     "eslint": "^9.39.2",
     "prettier": "^3.7.4",
     "rimraf": "^5.0.0",

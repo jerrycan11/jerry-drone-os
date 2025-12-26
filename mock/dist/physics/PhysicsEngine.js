@@ -5,16 +5,70 @@ class MockPhysicsEngine {
     position = { x: 0, y: 0, z: 0 };
     velocity = { x: 0, y: 0, z: 0 };
     acceleration = { x: 0, y: 0, z: 0 };
+    lastTick = Date.now();
+    // Phase 21: Obstacles for Lidar
+    obstacles = [];
     GRAVITY = 9.81;
     DRAG_COEFFICIENT = 0.1;
-    massKg = 1.0;
-    constructor(massKg) {
-        this.massKg = massKg;
+    mass = 1.0;
+    constructor(mass = 1.0) {
+        this.mass = mass;
+    }
+    addObstacle(minX, maxX, minY, maxY, minZ, maxZ) {
+        this.obstacles.push({ minX, maxX, minY, maxY, minZ, maxZ });
+    }
+    // Simplified Raycast. Returns distance to first hit or -1.
+    raycast(origin, direction, maxRange) {
+        // Normalize direction (assuming it is roughly normalized or we do it here)
+        // For simplicity, we just check if the ray intersects any AABB.
+        // Ray-AABB intersection algorithm (Slopes).
+        let closestDist = maxRange + 1;
+        let hit = false;
+        // Normalize Dir
+        const mag = Math.sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
+        const dx = direction.x / mag;
+        const dy = direction.y / mag;
+        const dz = direction.z / mag;
+        for (const obs of this.obstacles) {
+            // Slab method
+            let tmin = -Infinity, tmax = Infinity;
+            const checkAxis = (originVal, dirVal, boxMin, boxMax) => {
+                if (Math.abs(dirVal) < 1e-6) {
+                    // Ray is parallel to slab. No hit if origin not inside.
+                    if (originVal < boxMin || originVal > boxMax)
+                        return { t0: -Infinity, t1: -Infinity, parallelOut: true }; // Parallel and OUT
+                    return { t0: -Infinity, t1: Infinity, parallelOut: false };
+                }
+                const t1 = (boxMin - originVal) / dirVal;
+                const t2 = (boxMax - originVal) / dirVal;
+                return { t0: Math.min(t1, t2), t1: Math.max(t1, t2), parallelOut: false };
+            };
+            const xCheck = checkAxis(origin.x, dx, obs.minX, obs.maxX);
+            if (xCheck.parallelOut)
+                continue;
+            tmin = Math.max(tmin, xCheck.t0);
+            tmax = Math.min(tmax, xCheck.t1);
+            const yCheck = checkAxis(origin.y, dy, obs.minY, obs.maxY);
+            if (yCheck.parallelOut)
+                continue;
+            tmin = Math.max(tmin, yCheck.t0);
+            tmax = Math.min(tmax, yCheck.t1);
+            const zCheck = checkAxis(origin.z, dz, obs.minZ, obs.maxZ);
+            if (zCheck.parallelOut)
+                continue;
+            tmin = Math.max(tmin, zCheck.t0);
+            tmax = Math.min(tmax, zCheck.t1);
+            if (tmax >= tmin && tmin >= 0 && tmin < closestDist) {
+                closestDist = tmin;
+                hit = true;
+            }
+        }
+        return hit ? closestDist : -1;
     }
     update(deltaTimeSeconds, thrustVector) {
         // 1. Calculate gravity force (downward on Z axis, assuming Z is up)
         // Adjust frame of reference if needed, assuming simple Local ENU (East-North-Up)
-        const gravityForce = { x: 0, y: 0, z: -this.GRAVITY * this.massKg };
+        const gravityForce = { x: 0, y: 0, z: -this.GRAVITY * this.mass };
         // 2. Drag force (simplified: -C * v^2 * direction)
         const speedSquared = this.velocity.x ** 2 + this.velocity.y ** 2 + this.velocity.z ** 2;
         const speed = Math.sqrt(speedSquared);
@@ -33,9 +87,9 @@ class MockPhysicsEngine {
         };
         // 4. Update Acceleration (F = ma => a = F/m)
         this.acceleration = {
-            x: netForce.x / this.massKg,
-            y: netForce.y / this.massKg,
-            z: netForce.z / this.massKg,
+            x: netForce.x / this.mass,
+            y: netForce.y / this.mass,
+            z: netForce.z / this.mass,
         };
         // 5. Update Velocity (v = v0 + at)
         this.velocity.x += this.acceleration.x * deltaTimeSeconds;
