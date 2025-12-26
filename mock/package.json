@@ -1,0 +1,16 @@
+{
+  "name": "@drone-os/mock",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "node dist/index.js",
+    "test": "vitest run src --passWithNoTests"
+  },
+  "dependencies": {
+    "@drone-os/shared": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

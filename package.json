@@ -1,0 +1,28 @@
+{
+  "name": "jerry-drone-os",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "os",
+    "mock",
+    "shared",
+    "ui"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "test": "npm run test --workspaces",
+    "start:mock": "npm run start --workspace=mock",
+    "start:os": "npm run start --workspace=os"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.50.1",
+    "@typescript-eslint/parser": "^8.50.1",
+    "eslint": "^9.39.2",
+    "prettier": "^3.7.4",
+    "rimraf": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.3.0",
+    "vitest": "^4.0.16"
+  }
+}
